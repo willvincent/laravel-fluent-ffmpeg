@@ -47,7 +47,7 @@ class BuildFFmpegCommand
         if ($outputPath = $builder->getOutputPath()) {
             // If saving to disk, use temp path first
             if ($builder->getOutputDisk()) {
-                $tempPath = sys_get_temp_dir().'/'.uniqid('ffmpeg_').'_'.basename($outputPath);
+                $tempPath = sys_get_temp_dir() . '/' . uniqid('ffmpeg_') . '_' . basename($outputPath);
                 $parts[] = '-y'; // Overwrite without asking
                 $parts[] = escapeshellarg($tempPath);
             } else {
@@ -78,12 +78,37 @@ class BuildFFmpegCommand
         if (is_array($value)) {
             $parts = [];
             foreach ($value as $item) {
-                $parts[] = "-{$key} ".escapeshellarg($item);
+                $parts[] = "-{$key} " . escapeshellarg($item);
             }
 
             return implode(' ', $parts);
         }
 
-        return "-{$key} ".escapeshellarg($value);
+        // Special handling for options that contain FFmpeg patterns (%, strftime, etc.)
+        // These should not be escaped as they contain special formatting characters
+        $noEscapeOptions = [
+            'hls_segment_filename',
+            'segment_filename',
+            'strftime_mkdir',
+        ];
+
+        if (in_array($key, $noEscapeOptions) || $this->containsFFmpegPattern($value)) {
+            return "-{$key} \"{$value}\"";
+        }
+
+        return "-{$key} " . escapeshellarg($value);
+    }
+
+    /**
+     * Check if value contains FFmpeg formatting patterns
+     */
+    protected function containsFFmpegPattern(mixed $value): bool
+    {
+        if (!is_string($value)) {
+            return false;
+        }
+
+        // Check for common FFmpeg patterns: %d, %03d, %Y, etc.
+        return (bool) preg_match('/%\d*[a-zA-Z]/', $value);
     }
 }

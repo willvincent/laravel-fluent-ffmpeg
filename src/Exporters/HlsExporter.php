@@ -16,7 +16,9 @@ class HlsExporter
 
     protected ?string $keyInfoPath = null;
 
-    public function __construct(protected FFmpegBuilder $builder) {}
+    public function __construct(protected FFmpegBuilder $builder)
+    {
+    }
 
     /**
      * Add a format to the HLS export
@@ -63,8 +65,16 @@ class HlsExporter
         // 2. Generate the master playlist
 
         $masterPlaylist = "#EXTM3U\n#EXT-X-VERSION:3\n";
-        $baseName = pathinfo($path, PATHINFO_FILENAME);
-        $dirName = pathinfo($path, PATHINFO_DIRNAME);
+
+        // Normalize path to absolute and use forward slashes for FFmpeg
+        $absolutePath = $this->normalizePath($path);
+        $baseName = pathinfo($absolutePath, PATHINFO_FILENAME);
+        $dirName = pathinfo($absolutePath, PATHINFO_DIRNAME);
+
+        // Ensure directory exists
+        if (!is_dir($dirName)) {
+            mkdir($dirName, 0755, true);
+        }
 
         foreach ($this->formats as $format) {
             $variantName = "{$baseName}_{$format['resolution']}";
@@ -75,6 +85,9 @@ class HlsExporter
 
             // Parse resolution
             [$width, $height] = explode('x', $this->normalizeResolution($format['resolution']));
+
+            // Build segment filename with proper forward slashes
+            $segmentFilename = "{$dirName}/{$variantName}_%03d.ts";
 
             $variantBuilder
                 ->videoCodec('libx264')
@@ -89,7 +102,7 @@ class HlsExporter
                 ->addOutputOption('sc_threshold', 0)
                 ->addOutputOption('hls_time', $this->segmentLength)
                 ->addOutputOption('hls_playlist_type', $this->playlistType)
-                ->addOutputOption('hls_segment_filename', "{$dirName}/{$variantName}_%03d.ts")
+                ->addOutputOption('hls_segment_filename', $segmentFilename)
                 ->outputFormat('hls')
                 ->save($variantPath);
 
@@ -102,7 +115,46 @@ class HlsExporter
         }
 
         // Write master playlist
-        return file_put_contents($path, $masterPlaylist) !== false;
+        return file_put_contents($absolutePath, $masterPlaylist) !== false;
+    }
+
+    /**
+     * Normalize path to absolute and use forward slashes
+     */
+    protected function normalizePath(string $path): string
+    {
+        // If path is already absolute, use it
+        if ($this->isAbsolutePath($path)) {
+            return str_replace('\\', '/', $path);
+        }
+
+        // Otherwise, resolve relative to public_path if available (Laravel)
+        if (function_exists('public_path')) {
+            $fullPath = public_path($path);
+        } else {
+            // Fallback to current working directory
+            $fullPath = getcwd() . DIRECTORY_SEPARATOR . $path;
+        }
+
+        return str_replace('\\', '/', $fullPath);
+    }
+
+    /**
+     * Check if path is absolute
+     */
+    protected function isAbsolutePath(string $path): bool
+    {
+        // Unix absolute path
+        if (str_starts_with($path, '/')) {
+            return true;
+        }
+
+        // Windows absolute path (C:\ or C:/)
+        if (preg_match('/^[a-zA-Z]:[\\\\\/]/', $path)) {
+            return true;
+        }
+
+        return false;
     }
 
     protected function normalizeResolution(string $res): string
