@@ -47,7 +47,7 @@ class BuildFFmpegCommand
         if ($outputPath = $builder->getOutputPath()) {
             // If saving to disk, use temp path first
             if ($builder->getOutputDisk()) {
-                $tempPath = sys_get_temp_dir() . '/' . uniqid('ffmpeg_') . '_' . basename($outputPath);
+                $tempPath = sys_get_temp_dir().'/'.uniqid('ffmpeg_').'_'.basename($outputPath);
                 $parts[] = '-y'; // Overwrite without asking
                 $parts[] = escapeshellarg($tempPath);
             } else {
@@ -78,7 +78,7 @@ class BuildFFmpegCommand
         if (is_array($value)) {
             $parts = [];
             foreach ($value as $item) {
-                $parts[] = "-{$key} " . escapeshellarg($item);
+                $parts[] = "-{$key} ".escapeshellarg($item);
             }
 
             return implode(' ', $parts);
@@ -96,7 +96,7 @@ class BuildFFmpegCommand
             return "-{$key} \"{$value}\"";
         }
 
-        return "-{$key} " . escapeshellarg($value);
+        return "-{$key} ".escapeshellarg($value);
     }
 
     /**
@@ -104,7 +104,7 @@ class BuildFFmpegCommand
      */
     protected function containsFFmpegPattern(mixed $value): bool
     {
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             return false;
         }
 

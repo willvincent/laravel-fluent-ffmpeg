@@ -16,9 +16,7 @@ class HlsExporter
 
     protected ?string $keyInfoPath = null;
 
-    public function __construct(protected FFmpegBuilder $builder)
-    {
-    }
+    public function __construct(protected FFmpegBuilder $builder) {}
 
     /**
      * Add a format to the HLS export
@@ -72,7 +70,7 @@ class HlsExporter
         $dirName = pathinfo($absolutePath, PATHINFO_DIRNAME);
 
         // Ensure directory exists
-        if (!is_dir($dirName)) {
+        if (! is_dir($dirName)) {
             mkdir($dirName, 0755, true);
         }
 
@@ -133,7 +131,7 @@ class HlsExporter
             $fullPath = public_path($path);
         } else {
             // Fallback to current working directory
-            $fullPath = getcwd() . DIRECTORY_SEPARATOR . $path;
+            $fullPath = getcwd().DIRECTORY_SEPARATOR.$path;
         }
 
         return str_replace('\\', '/', $fullPath);
