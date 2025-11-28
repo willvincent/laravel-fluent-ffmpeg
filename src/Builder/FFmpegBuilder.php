@@ -182,12 +182,12 @@ class FFmpegBuilder
         if ($this->hasPendingClips()) {
             // Parse the output path to insert numbers before extension
             $pathInfo = pathinfo($path);
-            $dir = $pathInfo['dirname'] ?? '';
-            $filename = $pathInfo['filename'] ?? '';
-            $extension = isset($pathInfo['extension']) ? '.'.$pathInfo['extension'] : '';
+            $dir = $pathInfo['dirname'];
+            $filename = $pathInfo['filename'];
+            $extension = isset($pathInfo['extension']) ? '.' . $pathInfo['extension'] : '';
 
             // Create pattern: filename_1.ext, filename_2.ext, etc.
-            $outputPattern = ($dir ? $dir.DIRECTORY_SEPARATOR : '').$filename.'_{n}'.$extension;
+            $outputPattern = ($dir ? $dir . DIRECTORY_SEPARATOR : '') . $filename . '_{n}' . $extension;
 
             return $this->batchClips($this->getPendingClips(), $outputPattern);
         }
@@ -197,7 +197,7 @@ class FFmpegBuilder
 
         // Apply intro/outro/watermark if specified
         if ($this->introPath || $this->outroPath || $this->watermarkPath) {
-            $tempOutput = sys_get_temp_dir().'/'.uniqid('ffmpeg_').'_temp.mp4';
+            $tempOutput = sys_get_temp_dir() . '/' . uniqid('ffmpeg_') . '_temp.mp4';
             $this->outputPath = $tempOutput;
 
             // Execute FFmpeg command to create temp file

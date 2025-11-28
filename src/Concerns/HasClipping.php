@@ -26,17 +26,17 @@ trait HasClipping
         $outputs = [];
         $inputFile = $this->getInputs()[0] ?? null;
 
-        if (! $inputFile) {
+        if (!$inputFile) {
             throw new \RuntimeException('No input file specified. Use fromPath() first.');
         }
 
         foreach ($clips as $index => $clip) {
             $start = $clip['start'] ?? throw new \InvalidArgumentException("Clip {$index}: 'start' is required");
             $end = $clip['end'] ?? throw new \InvalidArgumentException("Clip {$index}: 'end' is required");
-            $output = str_replace('{n}', $index + 1, $outputPattern);
+            $output = str_replace('{n}', (string) ($index + 1), $outputPattern);
 
             // Extract the clip
-            $tempClip = sys_get_temp_dir().'/'.uniqid('clip_').'_temp.mp4';
+            $tempClip = sys_get_temp_dir() . '/' . uniqid('clip_') . '_temp.mp4';
 
             FFmpeg::fromPath($inputFile)
                 ->clip($start, $end)
@@ -74,7 +74,7 @@ trait HasClipping
      */
     protected function hasPendingClips(): bool
     {
-        return ! empty($this->pendingClips);
+        return !empty($this->pendingClips);
     }
 
     /**
