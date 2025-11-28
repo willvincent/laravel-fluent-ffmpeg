@@ -56,24 +56,46 @@ FFmpeg::fromPath('video.mp4')
     ->addFormat('720p')
     ->addFormat('480p')
     ->save('stream.m3u8');
+
+// Extract multiple clips
+FFmpeg::fromPath('video.mp4')
+    ->clips([
+        ['start' => '00:00:10', 'end' => '00:00:20'],
+        ['start' => '00:01:30', 'end' => '00:02:00'],
+        ['start' => '00:03:45', 'end' => '00:04:15'],
+    ])
+    ->save('highlight.mp4'); // Outputs: highlight_1.mp4, highlight_2.mp4, highlight_3.mp4
+
+// Video composition with intro, outro, and watermark
+FFmpeg::fromPath('video.mp4')
+    ->withIntro('intro.mp4')
+    ->withOutro('outro.mp4')
+    ->withWatermark('logo.png', 'bottom-right')
+    ->save('branded.mp4');
 ```
 
 ## Features
 
 -   **Fluent API** - Chainable, expressive syntax
--   **20+ Filters** - Watermarks, effects, transformations
+-   **Multi-Clip Extraction** - Extract multiple clips with auto-numbering
+-   **Video Composition** - Add intro, outro, and watermarks to clips
+-   **20+ Filters** - Effects, transformations, overlays
 -   **Multiple Formats** - MP4, HLS, DASH, GIF, and more
+-   **Media Probing** - Get detailed video/audio information
 -   **Laravel Disks** - Save to S3, local, or any disk
 -   **Progress Tracking** - Real-time progress with broadcasting
 -   **Queue Support** - Process videos in background
 -   **Smart Defaults** - Sensible defaults from config
 -   **Events** - Track processing lifecycle
--   **Fully Tested** - 65+ passing tests
+-   **Fully Tested** - 104+ passing tests
 
 ## Documentation
 
 -   [Installation & Configuration](docs/installation.md)
 -   [Basic Usage](docs/basic-usage.md)
+-   [Clipping](docs/clipping.md) - Extract single or multiple video clips
+-   [Video Composition](docs/video-composition.md) - Add intro/outro/watermark
+-   [Media Probing](docs/probe.md) - Get video/audio information
 -   [Video Options](docs/video-options.md)
 -   [Audio Options](docs/audio-options.md)
 -   [Subtitle Options](docs/subtitle-options.md)

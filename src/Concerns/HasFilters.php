@@ -15,33 +15,6 @@ trait HasFilters
     }
 
     /**
-     * Add watermark
-     */
-    public function watermark(string $path, array $options = []): self
-    {
-        $position = $options['position'] ?? 'bottom-right';
-        $opacity = $options['opacity'] ?? 1.0;
-
-        $positions = [
-            'top-left' => '10:10',
-            'top-right' => 'W-w-10:10',
-            'bottom-left' => '10:H-h-10',
-            'bottom-right' => 'W-w-10:H-h-10',
-            'center' => '(W-w)/2:(H-h)/2',
-        ];
-
-        $overlay = $positions[$position] ?? $positions['bottom-right'];
-
-        $filter = "movie={$path}";
-        if ($opacity < 1.0) {
-            $filter .= ",format=rgba,colorchannelmixer=aa={$opacity}";
-        }
-        $filter .= "[wm];[in][wm]overlay={$overlay}[out]";
-
-        return $this->addFilter($filter);
-    }
-
-    /**
      * Overlay video (Picture-in-Picture)
      */
     public function overlay(array $options = []): self
@@ -224,7 +197,7 @@ trait HasFilters
      */
     public function concat(array $inputs = []): self
     {
-        if (! empty($inputs)) {
+        if (!empty($inputs)) {
             foreach ($inputs as $input) {
                 $this->addInput($input);
             }

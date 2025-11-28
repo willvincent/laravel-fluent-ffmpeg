@@ -92,14 +92,6 @@ it('can chain filter methods', function () {
         ->and(count($builder->getFilters()))->toBe(4);
 });
 
-it('can add watermark', function () {
-    $builder = new FFmpegBuilder;
-    $builder->fromPath('video.mp4')
-        ->watermark('logo.png');
-
-    expect($builder->getFilters())->not->toBeEmpty();
-});
-
 it('can overlay video', function () {
     $builder = new FFmpegBuilder;
     $builder->overlay(['x' => 10, 'y' => 10, 'width' => 320, 'height' => 180]);
