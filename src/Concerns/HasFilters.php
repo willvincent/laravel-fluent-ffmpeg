@@ -197,7 +197,7 @@ trait HasFilters
      */
     public function concat(array $inputs = []): self
     {
-        if (!empty($inputs)) {
+        if (! empty($inputs)) {
             foreach ($inputs as $input) {
                 $this->addInput($input);
             }
