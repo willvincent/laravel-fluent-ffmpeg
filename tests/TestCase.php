@@ -17,8 +17,8 @@ class TestCase extends Orchestra
     protected function getEnvironmentSetUp($app): void
     {
         // Set up test configuration
-        config()->set('fluent-ffmpeg.ffmpeg_path', '/usr/bin/ffmpeg');
-        config()->set('fluent-ffmpeg.ffprobe_path', '/usr/bin/ffprobe');
+        config()->set('fluent-ffmpeg.ffmpeg_path', 'ffmpeg');
+        config()->set('fluent-ffmpeg.ffprobe_path', 'ffprobe');
         config()->set('fluent-ffmpeg.timeout', 3600);
     }
 }

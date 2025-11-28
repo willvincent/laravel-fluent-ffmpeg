@@ -8,6 +8,7 @@ use Ritechoice23\FluentFFmpeg\Actions\BuildFFmpegCommand;
 use Ritechoice23\FluentFFmpeg\Actions\ExecuteFFmpegCommand;
 use Ritechoice23\FluentFFmpeg\Concerns\HasAdvancedOptions;
 use Ritechoice23\FluentFFmpeg\Concerns\HasAudioOptions;
+use Ritechoice23\FluentFFmpeg\Concerns\HasClipping;
 use Ritechoice23\FluentFFmpeg\Concerns\HasCompatibilityOptions;
 use Ritechoice23\FluentFFmpeg\Concerns\HasFilters;
 use Ritechoice23\FluentFFmpeg\Concerns\HasFormatOptions;
@@ -17,12 +18,14 @@ use Ritechoice23\FluentFFmpeg\Concerns\HasMetadata;
 use Ritechoice23\FluentFFmpeg\Concerns\HasQueueSupport;
 use Ritechoice23\FluentFFmpeg\Concerns\HasSubtitleOptions;
 use Ritechoice23\FluentFFmpeg\Concerns\HasTimeOptions;
+use Ritechoice23\FluentFFmpeg\Concerns\HasVideoComposition;
 use Ritechoice23\FluentFFmpeg\Concerns\HasVideoOptions;
 
 class FFmpegBuilder
 {
     use HasAdvancedOptions;
     use HasAudioOptions;
+    use HasClipping;
     use HasCompatibilityOptions;
     use HasFilters;
     use HasFormatOptions;
@@ -32,6 +35,7 @@ class FFmpegBuilder
     use HasQueueSupport;
     use HasSubtitleOptions;
     use HasTimeOptions;
+    use HasVideoComposition;
     use HasVideoOptions;
 
     /**
@@ -83,6 +87,16 @@ class FFmpegBuilder
      * Broadcast channel for progress updates
      */
     protected ?string $broadcastChannel = null;
+
+    /**
+     * Pending clips for batch processing
+     */
+    protected array $pendingClips = [];
+
+    /**
+     * Options for clip processing (intro, outro, watermark)
+     */
+    protected array $clipOptions = [];
 
     /**
      * Broadcast progress to a channel
@@ -162,9 +176,46 @@ class FFmpegBuilder
     /**
      * Execute and save to local path
      */
-    public function save(string $path): bool
+    public function save(string $path): bool|array
     {
+        // Check if this is a batch clip operation
+        if ($this->hasPendingClips()) {
+            // Parse the output path to insert numbers before extension
+            $pathInfo = pathinfo($path);
+            $dir = $pathInfo['dirname'] ?? '';
+            $filename = $pathInfo['filename'] ?? '';
+            $extension = isset($pathInfo['extension']) ? '.' . $pathInfo['extension'] : '';
+
+            // Create pattern: filename_1.ext, filename_2.ext, etc.
+            $outputPattern = ($dir ? $dir . DIRECTORY_SEPARATOR : '') . $filename . '_{n}' . $extension;
+
+            return $this->batchClips($this->getPendingClips(), $outputPattern);
+        }
+
+        // Normal single video save
         $this->outputPath = $path;
+
+        // Apply intro/outro/watermark if specified
+        if ($this->introPath || $this->outroPath || $this->watermarkPath) {
+            $tempOutput = sys_get_temp_dir() . '/' . uniqid('ffmpeg_') . '_temp.mp4';
+            $this->outputPath = $tempOutput;
+
+            // Execute FFmpeg command to create temp file
+            $result = $this->execute();
+
+            if ($result) {
+                // Apply composition (intro/outro/watermark)
+                $this->applyComposition($tempOutput, $path);
+
+                if (file_exists($tempOutput)) {
+                    unlink($tempOutput);
+                }
+
+                return true;
+            }
+
+            return false;
+        }
 
         return $this->execute();
     }

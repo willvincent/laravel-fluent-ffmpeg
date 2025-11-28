@@ -24,6 +24,14 @@ class ExecuteFFmpegCommand
         ?string $outputPath = null,
         array $inputs = []
     ): bool {
+        // Ensure output directory exists before running FFmpeg
+        if ($outputPath && !$outputDisk) {
+            $outputDir = dirname($outputPath);
+            if (!is_dir($outputDir)) {
+                mkdir($outputDir, 0755, true);
+            }
+        }
+
         $startTime = microtime(true);
 
         // Dispatch started event
@@ -53,15 +61,18 @@ class ExecuteFFmpegCommand
             });
 
             // Check if process was successful
-            if (! $process->isSuccessful()) {
+            if (!$process->isSuccessful()) {
                 $error = $process->getErrorOutput();
+
+                // Include stdout as well for better debugging
+                $output = $process->getOutput();
 
                 if ($errorCallback) {
                     call_user_func($errorCallback, $error);
                 }
 
                 throw new ExecutionException(
-                    "FFmpeg command failed: {$error}",
+                    "FFmpeg command failed: {$error}\nOutput: {$output}\nCommand: {$command}",
                     $process->getExitCode()
                 );
             }

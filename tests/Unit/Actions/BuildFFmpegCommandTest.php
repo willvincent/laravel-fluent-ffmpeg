@@ -4,7 +4,7 @@ use Ritechoice23\FluentFFmpeg\Actions\BuildFFmpegCommand;
 use Ritechoice23\FluentFFmpeg\Builder\FFmpegBuilder;
 
 beforeEach(function () {
-    config(['fluent-ffmpeg.ffmpeg_path' => '/usr/bin/ffmpeg']);
+    config(['fluent-ffmpeg.ffmpeg_path' => 'ffmpeg']);
 });
 
 it('can build basic command with single input', function () {
@@ -13,7 +13,7 @@ it('can build basic command with single input', function () {
 
     $command = app(BuildFFmpegCommand::class)->execute($builder);
 
-    expect($command)->toContain('/usr/bin/ffmpeg')
+    expect($command)->toContain('ffmpeg')
         ->and($command)->toContain('-i')
         ->and($command)->toContain('video.mp4');
 });

@@ -15,11 +15,11 @@ FFmpeg::fromPath('video.mp4')
 ```
 
 This ensures the video plays on:
-- ✅ All web browsers (Chrome, Firefox, Safari, Edge)
-- ✅ iOS devices (iPhone, iPad)
-- ✅ Android devices
-- ✅ Smart TVs
-- ✅ Desktop players (VLC, QuickTime, Windows Media Player)
+- All web browsers (Chrome, Firefox, Safari, Edge)
+- iOS devices (iPhone, iPad)
+- Android devices
+- Smart TVs
+- Desktop players (VLC, QuickTime, Windows Media Player)
 
 ## Compatibility Methods
 
@@ -120,13 +120,13 @@ Enables progressive download for web streaming. The video starts playing before 
 
 | Method | Web | iOS | Android | Smart TV | Desktop |
 |--------|-----|-----|---------|----------|---------|
-| `universalCompatibility()` | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `webOptimized()` | ✅ | ✅ | ✅ | Limited | ✅ |
-| `mobileOptimized()` | ✅ | ✅ | ✅ | Limited | ✅ |
-| `iosOptimized()` | ✅ | ✅ | Limited | Limited | ✅ |
-| `androidOptimized()` | ✅ | Limited | ✅ | Limited | ✅ |
+| `universalCompatibility()` | Yes | Yes | Yes | Yes | Yes |
+| `webOptimized()` | Yes | Yes | Yes | Limited | Yes |
+| `mobileOptimized()` | Yes | Yes | Yes | Limited | Yes |
+| `iosOptimized()` | Yes | Yes | Limited | Limited | Yes |
+| `androidOptimized()` | Yes | Limited | Yes | Limited | Yes |
 
-✅ = Fully compatible | Limited = May have limitations
+Yes = Fully compatible | Limited = May have limitations
 
 ## Best Practices
 
