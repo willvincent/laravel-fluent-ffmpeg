@@ -199,127 +199,56 @@ FFmpeg::fromPath('content.mp4')
     ->save('instagram-post.mp4');
 ```
 
-### Tutorial Videos
+### Real-World Usage
 
 ```php
-// Educational content with consistent branding
+// Social media content
+FFmpeg::fromPath('video.mp4')
+    ->withIntro('intro.mp4')
+    ->withWatermark('logo.png', 'top-right')
+    ->save('social.mp4');
+
+// Educational/Course content
 FFmpeg::fromPath('lesson.mp4')
     ->withIntro('course-intro.mp4')
-    ->withOutro('next-lesson-cta.mp4')
+    ->withOutro('next-lesson.mp4')
     ->withWatermark('school-logo.png', 'bottom-right')
     ->save('tutorial.mp4');
 ```
 
-### Product Demos
+## Performance Notes
 
-```php
-// Demo with company branding
-FFmpeg::fromPath('product-demo.mp4')
-    ->withIntro('company-intro.mp4')
-    ->withOutro('contact-cta.mp4')
-    ->withWatermark('company-logo.png', 'top-right')
-    ->save('branded-demo.mp4');
-```
-
-## How It Works
-
-### Intro/Outro Process
-
-1. **Temporary file** - Main video is processed first
-2. **Concat demuxer** - FFmpeg concatenates intro + video + outro
-3. **Copy codec** - Fast concatenation (no re-encoding when specs match)
-4. **Final output** - Complete video with intro/outro
-
-### Watermark Process
-
-1. **Overlay filter** - FFmpeg overlays watermark image
-2. **Re-encoding** - Required for overlay (uses libx264)
-3. **Position calculation** - Dynamic positioning based on video dimensions
-4. **Final output** - Video with watermark
-
-### Combined Process
-
-When using intro/outro AND watermark:
-
-1. **Extract/process** main video
-2. **Add intro/outro** via concatenation
-3. **Add watermark** via overlay filter
-4. **Output** final composed video
-
-## Performance Considerations
-
-### Speed Comparison
-
-```php
-// Fastest: No composition
-FFmpeg::fromPath('video.mp4')->save('output.mp4');
-
-// Fast: Intro/outro only (copy codec if specs match)
-FFmpeg::fromPath('video.mp4')
-    ->withIntro('intro.mp4')
-    ->withOutro('outro.mp4')
-    ->save('output.mp4');
-
-// Slower: Watermark (requires re-encoding)
-FFmpeg::fromPath('video.mp4')
-    ->withWatermark('logo.png')
-    ->save('output.mp4');
-
-// Slowest: All three (concatenation + overlay re-encoding)
-FFmpeg::fromPath('video.mp4')
-    ->withIntro('intro.mp4')
-    ->withOutro('outro.mp4')
-    ->withWatermark('logo.png')
-    ->save('output.mp4');
-```
-
-### Optimization Tips
-
-1. **Match specs** - Use intro/outro with same resolution/framerate for fast copy concat
-2. **Prepare assets** - Pre-process intro/outro/watermark to optimal formats
-3. **Queue long jobs** - Use Laravel queues for batch operations
-4. **Test first** - Try one video before batch processing
+- **Fast**: Intro/outro only (copy codec when specs match)
+- **Slower**: Watermark (requires re-encoding)
+- **Match specs**: Use intro/outro with same resolution/framerate for optimal speed
 
 ## File Requirements
 
-### Intro/Outro Videos
-
-- **Format**: Any FFmpeg-supported format (MP4, AVI, MOV, etc.)
-- **Recommended**: MP4 with H.264 codec
-- **Resolution**: Ideally matches source video
-- **Framerate**: Ideally matches source video
-
-### Watermark Images
-
-- **Format**: PNG (preferred), JPG, or any image format
-- **Transparency**: PNG with alpha channel recommended
-- **Size**: Should be appropriately sized for video resolution
-- **Example**: 200x50px logo for 1080p video
-
-## Error Handling
-
-```php
-try {
-    FFmpeg::fromPath('video.mp4')
-        ->withIntro('intro.mp4')
-        ->withWatermark('logo.png')
-        ->save('output.mp4');
-        
-    echo "Video composed successfully!";
-} catch (\Exception $e) {
-    echo "Error: " . $e->getMessage();
-}
-```
-
-## Tips
-
-1. **Consistent branding** - Reuse same intro/outro/watermark across all content
-2. **Version control** - Keep intro/outro/watermark files in version control
-3. **Test positions** - Try different watermark positions to avoid covering important content
-4. **Compression** - Use optimized/compressed watermark images
-5. **Aspect ratios** - Ensure intro/outro match your video's aspect ratio
+**Intro/Outro:** Any format (MP4 recommended), ideally matching source resolution/framerate  
+**Watermark:** PNG with transparency preferred, appropriately sized for video
 
 Perfect for creating professional, branded video content at scale!
+
+## Audio Visualization Use Case
+
+Combine cover art with audio waveform overlay:
+
+```php
+// Generate waveform
+FFmpeg::fromPath('audio.mp3')
+    ->waveform(['width' => 800, 'height' => 200, 'color' => 'cyan'])
+    ->save('wave.png');
+
+// Overlay on cover art
+FFmpeg::fromPath('cover.jpg')
+    ->addInput('wave.png')
+    ->addInput('audio.mp3')
+    ->overlay(['x' => '(W-w)/2', 'y' => 'H-h-50'])  // Center, 50px from bottom
+    ->resolution(1920, 1080)
+    ->save('audio-video.mp4');
+```
+
+For full audio visualization documentation, see [Helper Methods](helpers.md).
 
 ## Advanced Overlay API
 
@@ -338,7 +267,7 @@ FFmpeg::fromPath('video.mp4')
 ### Picture-in-Picture
 
 ```php
-// Add小 webcam feed in corner of screen share
+// Add webcam feed in corner of screen share
 FFmpeg::fromPath('screenshare.mp4')
     ->addInput('webcam.mp4')
     ->overlay([
