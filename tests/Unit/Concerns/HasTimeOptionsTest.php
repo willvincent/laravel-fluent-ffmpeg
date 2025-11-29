@@ -30,14 +30,6 @@ it('can set end time', function () {
     expect($builder->getOutputOptions()['to'])->toBe('00:00:30');
 });
 
-it('can extract clip', function () {
-    $builder = new FFmpegBuilder;
-    $builder->clip('00:00:05', '00:00:15');
-
-    expect($builder->getInputOptions()['ss'])->toBe('00:00:05')
-        ->and($builder->getOutputOptions()['to'])->toBe('00:00:15');
-});
-
 it('can chain time options', function () {
     $builder = new FFmpegBuilder;
 

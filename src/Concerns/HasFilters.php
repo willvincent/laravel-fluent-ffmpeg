@@ -14,22 +14,7 @@ trait HasFilters
         return $this;
     }
 
-    /**
-     * Overlay video (Picture-in-Picture)
-     */
-    public function overlay(array $options = []): self
-    {
-        $x = $options['x'] ?? 10;
-        $y = $options['y'] ?? 10;
-        $width = $options['width'] ?? 320;
-        $height = $options['height'] ?? 180;
 
-        // Scale the overlay input (assumed to be the second input)
-        $this->addFilter("[1:v]scale={$width}:{$height}[overlay]");
-
-        // Overlay it on the main input
-        return $this->addFilter("[0:v][overlay]overlay={$x}:{$y}");
-    }
 
     /**
      * Crop video
@@ -191,23 +176,5 @@ trait HasFilters
 
         return $this;
     }
-
-    /**
-     * Concatenate multiple videos
-     */
-    public function concat(array $inputs = []): self
-    {
-        if (! empty($inputs)) {
-            foreach ($inputs as $input) {
-                $this->addInput($input);
-            }
-        }
-
-        $count = count($this->getInputs());
-        $this->addFilter("concat=n={$count}:v=1:a=1[outv][outa]");
-        $this->addOutputOption('map', '[outv]');
-        $this->addOutputOption('map', '[outa]');
-
-        return $this;
-    }
 }
+

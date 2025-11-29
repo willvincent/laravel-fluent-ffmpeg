@@ -58,20 +58,30 @@ This document provides a comprehensive reference for all available methods in th
 
 ## Format Options (`HasFormatOptions`)
 
-| Method                         | Description                                 |
-| ------------------------------ | ------------------------------------------- |
-| `outputFormat(string $format)` | Set the output format (e.g., `mp4`, `hls`). |
-| `hls(array $options)`          | Configure HLS output options.               |
-| `dash(array $options)`         | Configure DASH output options.              |
-| `gif(array $options)`          | Configure GIF output options.               |
-| `toGif(array $options)`        | Helper to convert to GIF.                   |
+| Method                         | Description                                                              |
+| ------------------------------ | ------------------------------------------------------------------------ |
+| `outputFormat(string $format)` | Set the output format (e.g., `mp4`, `hls`).                              |
+| `hls(array $options)`          | Configure HLS output options.                                            |
+| `dash(array $options)`         | Configure DASH output options.                                           |
+| `gif(array $options)`          | Configure GIF output options.                                            |
+| `toGif(array $options)`        | Convert to GIF (alias for `gif()`).                                      |
+| `toMp3(int $bitrate)`          | Convert to MP3 audio (default 192k bitrate).                             |
+| `toMp4(array $options)`        | Convert to MP4 video (H.264 + AAC).                                      |
+| `toWebm(array $options)`       | Convert to WebM video (VP9 + Opus).                                      |
+| `toAvi(array $options)`        | Convert to AVI video (MPEG4 + MP3).                                      |
+| `toMov(array $options)`        | Convert to MOV/QuickTime video (H.264 + AAC).                            |
+| `toFlv(array $options)`        | Convert to FLV/Flash video.                                              |
+| `toMkv(array $options)`        | Convert to MKV/Matroska video (H.264 + AAC).                             |
+| `toWav(int $sampleRate)`       | Convert to WAV audio (default 44100Hz).                                  |
+| `toAac(int $bitrate)`          | Convert to AAC audio (default 192k bitrate).                             |
+| `toOgg(int $quality)`          | Convert to OGG Vorbis audio (quality 0-10, default 5).                   |
+| `toM4a(int $bitrate)`          | Convert to M4A audio - AAC in MP4 container (default 192k bitrate).      |
 
 ## Filters & Effects (`HasFilters`)
 
 | Method                                                      | Description                                  |
 | ----------------------------------------------------------- | -------------------------------------------- |
 | `addFilter(string $filter)`                                 | Add a custom filter string.                  |
-| `overlay(array $options)`                                   | Overlay video (Picture-in-Picture).          |
 | `crop(int $width, int $height, int $x, int $y)`             | Crop the video.                              |
 | `scale(int $width, int $height, bool $maintainAspectRatio)` | Scale/resize the video.                      |
 | `resize(int $width, int $height)`                           | Alias for `scale`.                           |
@@ -88,22 +98,21 @@ This document provides a comprehensive reference for all available methods in th
 | `sepia()`                                                   | Apply sepia tone effect.                     |
 | `speed(float $multiplier)`                                  | Change playback speed (e.g., `0.5`, `2.0`).  |
 | `reverse()`                                                 | Reverse video playback.                      |
-| `concat(array $inputs)`                                     | Concatenate multiple inputs.                 |
 
 ## Time Options (`HasTimeOptions`)
 
-| Method                             | Description                           |
-| ---------------------------------- | ------------------------------------- |
-| `duration(string $duration)`       | Set the output duration.              |
-| `seek(string $time)`               | Seek to a specific time in the input. |
-| `startFrom(string $time)`          | Alias for `seek`.                     |
-| `stopAt(string $time)`             | Stop processing at a specific time.   |
-| `clip(string $start, string $end)` | Extract a clip between two times.     |
+| Method                     | Description                           |
+| -------------------------- | ------------------------------------- |
+| `duration(string $duration)` | Set the output duration.              |
+| `seek(string $time)`         | Seek to a specific time in the input. |
+| `startFrom(string $time)`    | Alias for `seek`.                     |
+| `stopAt(string $time)`       | Stop processing at a specific time.   |
 
 ## Clipping (`HasClipping`)
 
 | Method                                            | Description                                                                                         |
 | ------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `clip(string $start, string $end)`                | Extract a single clip between start and end times.                                                   |
 | `clips(array $clips)`                             | Define multiple clips to extract with format: `[['start' => '00:00:10', 'end' => '00:00:20'], ...]` |
 | `batchClips(array $clips, string $outputPattern)` | Extract multiple clips with custom output pattern using `{n}` placeholder.                          |
 
@@ -114,6 +123,8 @@ This document provides a comprehensive reference for all available methods in th
 | `withIntro(string $introPath)`                                                               | Add an intro video to be prepended.                                                                 |
 | `withOutro(string $outroPath)`                                                               | Add an outro video to be appended.                                                                  |
 | `withWatermark(string $watermarkPath, string $position)`                                     | Add a watermark image. Positions: `top-left`, `top-right`, `bottom-left`, `bottom-right`, `center`. |
+| `overlay(array $options)`                                                                    | Overlay video or image (Picture-in-Picture). Options: `x`, `y`, `width`, `height`.                  |
+| `concat(array $inputs)`                                                                      | Concatenate multiple videos. Accepts array of input file paths.                                      |
 | `addIntroOutro(string $videoPath, string $outputPath, ?string $intro, ?string $outro)`       | Manually add intro/outro to a specific video.                                                       |
 | `addWatermark(string $videoPath, string $outputPath, ?string $watermark, ?string $position)` | Manually add watermark to a specific video.                                                         |
 

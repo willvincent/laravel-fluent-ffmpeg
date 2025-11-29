@@ -47,14 +47,6 @@
 
 ## Advanced
 
-### Watermark
-```php
-->watermark('logo.png', [
-    'position' => 'top-right',  // top-left, top-right, bottom-left, bottom-right, center
-    'opacity' => 0.7
-])
-```
-
 ### Speed
 ```php
 ->speed(2.0)   // 2x speed

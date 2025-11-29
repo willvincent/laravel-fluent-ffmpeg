@@ -320,3 +320,106 @@ try {
 5. **Aspect ratios** - Ensure intro/outro match your video's aspect ratio
 
 Perfect for creating professional, branded video content at scale!
+
+## Advanced Overlay API
+
+The `overlay()` method gives you precise control over compositing videos and images. Use it for Picture-in-Picture effects, custom watermarks, and multi-layer compositions.
+
+### Basic Overlay
+
+```php
+// Overlay a logo (second input) on main video
+FFmpeg::fromPath('video.mp4')
+    ->addInput('logo.png')
+    ->overlay(['x' => 20, 'y' => 20])
+    ->save('output.mp4');
+```
+
+### Picture-in-Picture
+
+```php
+// Add小 webcam feed in corner of screen share
+FFmpeg::fromPath('screenshare.mp4')
+    ->addInput('webcam.mp4')
+    ->overlay([
+        'x' => 'W-w-20',      // 20px from right
+        'y' => 'H-h-20',      // 20px from bottom
+        'width' => 320,
+        'height' => 240
+    ])
+    ->save('presentation.mp4');
+```
+
+### Position Options
+
+- **`x`**: Horizontal position (pixels or FFmpeg expression like `W-w-10` for right edge)
+- **`y`**: Vertical position (pixels or FFmpeg expression like `H-h-10` for bottom edge) 
+- **`width`**: Scale overlay to this width (optional)
+- **`height`**: Scale overlay to this height (optional)
+
+### Advanced Positioning
+
+```php
+// Center overlay
+->overlay(['x' => '(W-w)/2', 'y' => '(H-h)/2'])
+
+// Top-left with padding
+->overlay(['x' => 10, 'y' => 10])
+
+// Bottom-right corner
+->overlay(['x' => 'W-w-10', 'y' => 'H-h-10'])
+```
+
+### Multiple Overlays
+
+```php
+// Overlay multiple elements (requires complex filters)
+FFmpeg::fromPath('video.mp4')
+    ->addInput('watermark.png')
+    ->addInput('logo.png')
+    ->overlay(['x' => 10, 'y' => 10])  // First overlay
+    ->save('output.mp4');
+```
+
+**Note:** `withWatermark()` is a convenience method that uses `overlay()` internally with predefined positions.
+
+## Video Concatenation API
+
+The `concat()` method allows you to join multiple videos into a single output file.
+
+### Basic Concatenation
+
+```php
+FFmpeg::fromPath('part1.mp4')
+    ->concat(['part2.mp4', 'part3.mp4'])
+    ->save('complete.mp4');
+```
+
+### Multiple Inputs
+
+```php
+// Combine intro, main content, and outro
+FFmpeg::fromPath('intro.mp4')
+    ->concat([
+        'main-content.mp4',
+        'outro.mp4'
+    ])
+    ->save('final-video.mp4');
+```
+
+### With Processing
+
+```php
+// Concatenate then apply watermark
+FFmpeg::fromPath('clip1.mp4')
+    ->concat(['clip2.mp4', 'clip3.mp4'])
+    ->withWatermark('logo.png', 'top-right')
+    ->save('compilation.mp4');
+```
+
+### Requirements
+
+- All videos should have the same resolution, codec, and framerate for best results
+- If specs differ, FFmpeg will handle conversion but may require re-encoding
+
+**Note:** For intro/outro workflows, use `withIntro()` and `withOutro()` which provide a simpler API.

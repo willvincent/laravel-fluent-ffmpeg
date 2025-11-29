@@ -72,24 +72,24 @@ trait HasVideoComposition
         $intro = $intro ?? $this->introPath;
         $outro = $outro ?? $this->outroPath;
 
-        if (! $intro && ! $outro) {
+        if (!$intro && !$outro) {
             copy($videoPath, $outputPath);
 
             return;
         }
 
         $inputs = [];
-        $fileList = sys_get_temp_dir().'/'.uniqid('concat_').'_list.txt';
+        $fileList = sys_get_temp_dir() . '/' . uniqid('concat_') . '_list.txt';
 
         // Build concat list
         if ($intro) {
-            $inputs[] = "file '".str_replace("'", "'\\''", realpath($intro))."'";
+            $inputs[] = "file '" . str_replace("'", "'\\''", realpath($intro)) . "'";
         }
 
-        $inputs[] = "file '".str_replace("'", "'\\''", realpath($videoPath))."'";
+        $inputs[] = "file '" . str_replace("'", "'\\''", realpath($videoPath)) . "'";
 
         if ($outro) {
-            $inputs[] = "file '".str_replace("'", "'\\''", realpath($outro))."'";
+            $inputs[] = "file '" . str_replace("'", "'\\''", realpath($outro)) . "'";
         }
 
         file_put_contents($fileList, implode("\n", $inputs));
@@ -106,6 +106,7 @@ trait HasVideoComposition
         }
     }
 
+
     /**
      * Add watermark to a video
      */
@@ -114,25 +115,26 @@ trait HasVideoComposition
         $watermark = $watermark ?? $this->watermarkPath;
         $position = $position ?? $this->watermarkPosition;
 
-        if (! $watermark) {
+        if (!$watermark) {
             copy($videoPath, $outputPath);
 
             return;
         }
 
+        // Map position names to x/y coordinates for overlay
         $positions = [
-            'top-left' => '10:10',
-            'top-right' => 'W-w-10:10',
-            'bottom-left' => '10:H-h-10',
-            'bottom-right' => 'W-w-10:H-h-10',
-            'center' => '(W-w)/2:(H-h)/2',
+            'top-left' => ['x' => 10, 'y' => 10],
+            'top-right' => ['x' => 'W-w-10', 'y' => 10],
+            'bottom-left' => ['x' => 10, 'y' => 'H-h-10'],
+            'bottom-right' => ['x' => 'W-w-10', 'y' => 'H-h-10'],
+            'center' => ['x' => '(W-w)/2', 'y' => '(H-h)/2'],
         ];
 
-        $overlay = $positions[$position] ?? $positions['top-right'];
+        $coords = $positions[$position] ?? $positions['top-right'];
 
         FFmpeg::fromPath($videoPath)
             ->addInput($watermark)
-            ->addFilter("overlay={$overlay}")
+            ->overlay($coords)  // Use the overlay() API
             ->videoCodec('libx264')
             ->audioCodec('copy')
             ->save($outputPath);
@@ -148,7 +150,7 @@ trait HasVideoComposition
         $hasWatermark = $this->watermarkPath !== null;
 
         // No composition needed
-        if (! $hasIntro && ! $hasOutro && ! $hasWatermark) {
+        if (!$hasIntro && !$hasOutro && !$hasWatermark) {
             if ($inputPath !== $outputPath) {
                 copy($inputPath, $outputPath);
             }
@@ -160,7 +162,7 @@ trait HasVideoComposition
 
         // Step 1: Add intro/outro
         if ($hasIntro || $hasOutro) {
-            $tempWithIntroOutro = sys_get_temp_dir().'/'.uniqid('composed_').'_temp.mp4';
+            $tempWithIntroOutro = sys_get_temp_dir() . '/' . uniqid('composed_') . '_temp.mp4';
             $this->addIntroOutro($tempFile, $tempWithIntroOutro);
 
             if ($tempFile !== $inputPath) {
@@ -180,5 +182,51 @@ trait HasVideoComposition
                 rename($tempFile, $outputPath);
             }
         }
+    }
+
+    /**
+     * Overlay video or image (Picture-in-Picture)
+     * 
+     * @param array $options Options with x, y, width, height positions
+     * @return self
+     */
+    public function overlay(array $options = []): self
+    {
+        $x = $options['x'] ?? 10;
+        $y = $options['y'] ?? 10;
+        $width = $options['width'] ?? null;
+        $height = $options['height'] ?? null;
+
+        // If width/height specified, scale the overlay input (assumed to be the second input)
+        if ($width && $height) {
+            $this->addFilter("[1:v]scale={$width}:{$height}[overlay]");
+            // Overlay it on the main input
+            return $this->addFilter("[0:v][overlay]overlay={$x}:{$y}");
+        }
+
+        // No scaling, just overlay directly
+        return $this->addFilter("overlay={$x}:{$y}");
+    }
+
+    /**
+     * Concatenate multiple videos
+     * 
+     * @param array $inputs Additional input files to concatenate
+     * @return self
+     */
+    public function concat(array $inputs = []): self
+    {
+        if (!empty($inputs)) {
+            foreach ($inputs as $input) {
+                $this->addInput($input);
+            }
+        }
+
+        $count = count($this->getInputs());
+        $this->addFilter("concat=n={$count}:v=1:a=1[outv][outa]");
+        $this->addOutputOption('map', '[outv]');
+        $this->addOutputOption('map', '[outa]');
+
+        return $this;
     }
 }

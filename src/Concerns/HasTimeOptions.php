@@ -35,12 +35,4 @@ trait HasTimeOptions
     {
         return $this->addOutputOption('to', $time);
     }
-
-    /**
-     * Extract clip between start and end times
-     */
-    public function clip(string $start, string $end): self
-    {
-        return $this->seek($start)->stopAt($end);
-    }
 }

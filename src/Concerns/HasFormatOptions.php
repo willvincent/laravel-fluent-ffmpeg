@@ -76,4 +76,147 @@ trait HasFormatOptions
     {
         return $this->gif($options);
     }
+
+    /**
+     * Convert to MP3 audio
+     */
+    public function toMp3(int $bitrate = 192): self
+    {
+        return $this->outputFormat('mp3')
+            ->audioCodec('libmp3lame')
+            ->audioBitrate("{$bitrate}k")
+            ->removeVideo();
+    }
+
+    /**
+     * Convert to MP4 video
+     */
+    public function toMp4(array $options = []): self
+    {
+        $this->outputFormat('mp4')
+            ->videoCodec($options['video_codec'] ?? 'libx264')
+            ->audioCodec($options['audio_codec'] ?? 'aac');
+
+        if (isset($options['quality'])) {
+            $this->quality($options['quality']);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Convert to WebM video
+     */
+    public function toWebm(array $options = []): self
+    {
+        $this->outputFormat('webm')
+            ->videoCodec($options['video_codec'] ?? 'libvpx-vp9')
+            ->audioCodec($options['audio_codec'] ?? 'libopus');
+
+        if (isset($options['quality'])) {
+            $this->quality($options['quality']);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Convert to AVI video
+     */
+    public function toAvi(array $options = []): self
+    {
+        $this->outputFormat('avi')
+            ->videoCodec($options['video_codec'] ?? 'mpeg4')
+            ->audioCodec($options['audio_codec'] ?? 'mp3');
+
+        return $this;
+    }
+
+    /**
+     * Convert to MOV video (QuickTime)
+     */
+    public function toMov(array $options = []): self
+    {
+        $this->outputFormat('mov')
+            ->videoCodec($options['video_codec'] ?? 'libx264')
+            ->audioCodec($options['audio_codec'] ?? 'aac');
+
+        if (isset($options['quality'])) {
+            $this->quality($options['quality']);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Convert to FLV video (Flash Video)
+     */
+    public function toFlv(array $options = []): self
+    {
+        $this->outputFormat('flv')
+            ->videoCodec($options['video_codec'] ?? 'flv')
+            ->audioCodec($options['audio_codec'] ?? 'mp3');
+
+        return $this;
+    }
+
+    /**
+     * Convert to MKV video (Matroska)
+     */
+    public function toMkv(array $options = []): self
+    {
+        $this->outputFormat('matroska')
+            ->videoCodec($options['video_codec'] ?? 'libx264')
+            ->audioCodec($options['audio_codec'] ?? 'aac');
+
+        if (isset($options['quality'])) {
+            $this->quality($options['quality']);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Convert to WAV audio
+     */
+    public function toWav(int $sampleRate = 44100): self
+    {
+        return $this->outputFormat('wav')
+            ->audioCodec('pcm_s16le')
+            ->audioSampleRate($sampleRate)
+            ->removeVideo();
+    }
+
+    /**
+     * Convert to AAC audio
+     */
+    public function toAac(int $bitrate = 192): self
+    {
+        return $this->outputFormat('adts')
+            ->audioCodec('aac')
+            ->audioBitrate("{$bitrate}k")
+            ->removeVideo();
+    }
+
+    /**
+     * Convert to OGG audio
+     */
+    public function toOgg(int $quality = 5): self
+    {
+        return $this->outputFormat('ogg')
+            ->audioCodec('libvorbis')
+            ->audioQuality($quality)
+            ->removeVideo();
+    }
+
+    /**
+     * Convert to M4A audio (AAC in MP4 container)
+     */
+    public function toM4a(int $bitrate = 192): self
+    {
+        return $this->outputFormat('mp4')
+            ->audioCodec('aac')
+            ->audioBitrate("{$bitrate}k")
+            ->removeVideo();
+    }
 }

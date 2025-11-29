@@ -100,6 +100,7 @@ FFmpeg::fromPath('video.mp4')
 -   [Audio Options](docs/audio-options.md)
 -   [Subtitle Options](docs/subtitle-options.md)
 -   [Filters & Effects](docs/filters.md)
+-   [Format Conversion](docs/format-conversion.md) - Convert to MP3, MP4, WebM, and more
 -   [Formats & Streaming](docs/formats.md)
 -   [Advanced HLS](docs/hls.md)
 -   [Cross-Platform Compatibility](docs/compatibility.md)
