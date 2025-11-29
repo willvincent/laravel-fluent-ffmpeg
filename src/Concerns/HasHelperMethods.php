@@ -64,7 +64,7 @@ trait HasHelperMethods
         // Get the input file
         $inputFile = $this->getInputs()[0] ?? null;
 
-        if (!$inputFile) {
+        if (! $inputFile) {
             throw new \RuntimeException('No input file specified. Use fromPath() first.');
         }
 
@@ -92,7 +92,7 @@ trait HasHelperMethods
         if (is_string($preset)) {
             $presetConfig = config("fluent-ffmpeg.presets.{$preset}");
 
-            if (!$presetConfig) {
+            if (! $presetConfig) {
                 throw new \InvalidArgumentException("Preset '{$preset}' not found in configuration");
             }
         } else {
