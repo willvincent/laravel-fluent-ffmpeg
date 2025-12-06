@@ -84,6 +84,9 @@ trait HasTextOverlay
             ->addFilter($filter)
             ->videoCodec('libx264')
             ->audioCodec('copy')
+            ->gopSize(60)
+            ->keyframeInterval(60)
+            ->sceneChangeThreshold(0)
             ->save($outputPath);
     }
 

@@ -97,6 +97,13 @@ trait HasFormatOptions
             ->videoCodec($options['video_codec'] ?? 'libx264')
             ->audioCodec($options['audio_codec'] ?? 'aac');
 
+        // Add GOP settings for reliable indexing (unless explicitly disabled)
+        if (!isset($options['skip_gop_settings']) || !$options['skip_gop_settings']) {
+            $this->gopSize($options['gop_size'] ?? 60)
+                ->keyframeInterval($options['keyframe_interval'] ?? 60)
+                ->sceneChangeThreshold($options['scene_threshold'] ?? 0);
+        }
+
         if (isset($options['quality'])) {
             $this->quality($options['quality']);
         }
@@ -112,6 +119,13 @@ trait HasFormatOptions
         $this->outputFormat('webm')
             ->videoCodec($options['video_codec'] ?? 'libvpx-vp9')
             ->audioCodec($options['audio_codec'] ?? 'libopus');
+
+        // Add GOP settings for reliable indexing (unless explicitly disabled)
+        if (!isset($options['skip_gop_settings']) || !$options['skip_gop_settings']) {
+            $this->gopSize($options['gop_size'] ?? 60)
+                ->keyframeInterval($options['keyframe_interval'] ?? 60)
+                ->sceneChangeThreshold($options['scene_threshold'] ?? 0);
+        }
 
         if (isset($options['quality'])) {
             $this->quality($options['quality']);
@@ -129,6 +143,13 @@ trait HasFormatOptions
             ->videoCodec($options['video_codec'] ?? 'mpeg4')
             ->audioCodec($options['audio_codec'] ?? 'mp3');
 
+        // Add GOP settings for reliable indexing (unless explicitly disabled)
+        if (!isset($options['skip_gop_settings']) || !$options['skip_gop_settings']) {
+            $this->gopSize($options['gop_size'] ?? 60)
+                ->keyframeInterval($options['keyframe_interval'] ?? 60)
+                ->sceneChangeThreshold($options['scene_threshold'] ?? 0);
+        }
+
         return $this;
     }
 
@@ -140,6 +161,13 @@ trait HasFormatOptions
         $this->outputFormat('mov')
             ->videoCodec($options['video_codec'] ?? 'libx264')
             ->audioCodec($options['audio_codec'] ?? 'aac');
+
+        // Add GOP settings for reliable indexing (unless explicitly disabled)
+        if (!isset($options['skip_gop_settings']) || !$options['skip_gop_settings']) {
+            $this->gopSize($options['gop_size'] ?? 60)
+                ->keyframeInterval($options['keyframe_interval'] ?? 60)
+                ->sceneChangeThreshold($options['scene_threshold'] ?? 0);
+        }
 
         if (isset($options['quality'])) {
             $this->quality($options['quality']);
@@ -157,6 +185,13 @@ trait HasFormatOptions
             ->videoCodec($options['video_codec'] ?? 'flv')
             ->audioCodec($options['audio_codec'] ?? 'mp3');
 
+        // Add GOP settings for reliable indexing (unless explicitly disabled)
+        if (!isset($options['skip_gop_settings']) || !$options['skip_gop_settings']) {
+            $this->gopSize($options['gop_size'] ?? 60)
+                ->keyframeInterval($options['keyframe_interval'] ?? 60)
+                ->sceneChangeThreshold($options['scene_threshold'] ?? 0);
+        }
+
         return $this;
     }
 
@@ -168,6 +203,13 @@ trait HasFormatOptions
         $this->outputFormat('matroska')
             ->videoCodec($options['video_codec'] ?? 'libx264')
             ->audioCodec($options['audio_codec'] ?? 'aac');
+
+        // Add GOP settings for reliable indexing (unless explicitly disabled)
+        if (!isset($options['skip_gop_settings']) || !$options['skip_gop_settings']) {
+            $this->gopSize($options['gop_size'] ?? 60)
+                ->keyframeInterval($options['keyframe_interval'] ?? 60)
+                ->sceneChangeThreshold($options['scene_threshold'] ?? 0);
+        }
 
         if (isset($options['quality'])) {
             $this->quality($options['quality']);

@@ -26,7 +26,7 @@ trait HasClipping
         $outputs = [];
         $inputFile = $this->getInputs()[0] ?? null;
 
-        if (! $inputFile) {
+        if (!$inputFile) {
             throw new \RuntimeException('No input file specified. Use fromPath() first.');
         }
 
@@ -36,12 +36,15 @@ trait HasClipping
             $output = str_replace('{n}', (string) ($index + 1), $outputPattern);
 
             // Extract the clip
-            $tempClip = sys_get_temp_dir().'/'.uniqid('clip_').'_temp.mp4';
+            $tempClip = sys_get_temp_dir() . '/' . uniqid('clip_') . '_temp.mp4';
 
             FFmpeg::fromPath($inputFile)
                 ->clip($start, $end)
                 ->videoCodec('libx264')
                 ->audioCodec('aac')
+                ->gopSize(60)
+                ->keyframeInterval(60)
+                ->sceneChangeThreshold(0)
                 ->save($tempClip);
 
             // Apply composition (intro/outro/watermark) if any
@@ -74,7 +77,7 @@ trait HasClipping
      */
     protected function hasPendingClips(): bool
     {
-        return ! empty($this->pendingClips);
+        return !empty($this->pendingClips);
     }
 
     /**
