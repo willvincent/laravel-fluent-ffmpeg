@@ -16,6 +16,7 @@ This document provides a comprehensive reference for all available methods in th
 | `toDisk(string $disk, string $path)`         | Execute and save output to a Laravel disk.                 |
 | `getCommand()`                               | Get the generated FFmpeg command string without executing. |
 | `dryRun()`                                   | Alias for `getCommand()`.                                  |
+| `ddCommand()`                                | Dump the generated FFmpeg command and exit (`dd()`).       |
 | `onProgress(callable $callback)`             | Set a callback for progress updates.                       |
 | `onError(callable $callback)`                | Set a callback for error handling.                         |
 | `broadcastProgress(string $channel)`         | Broadcast progress updates to a channel.                   |
@@ -58,24 +59,24 @@ This document provides a comprehensive reference for all available methods in th
 
 ## Format Options (`HasFormatOptions`)
 
-| Method                         | Description                                                              |
-| ------------------------------ | ------------------------------------------------------------------------ |
-| `outputFormat(string $format)` | Set the output format (e.g., `mp4`, `hls`).                              |
-| `hls(array $options)`          | Configure HLS output options.                                            |
-| `dash(array $options)`         | Configure DASH output options.                                           |
-| `gif(array $options)`          | Configure GIF output options.                                            |
-| `toGif(array $options)`        | Convert to GIF (alias for `gif()`).                                      |
-| `toMp3(int $bitrate)`          | Convert to MP3 audio (default 192k bitrate).                             |
-| `toMp4(array $options)`        | Convert to MP4 video (H.264 + AAC).                                      |
-| `toWebm(array $options)`       | Convert to WebM video (VP9 + Opus).                                      |
-| `toAvi(array $options)`        | Convert to AVI video (MPEG4 + MP3).                                      |
-| `toMov(array $options)`        | Convert to MOV/QuickTime video (H.264 + AAC).                            |
-| `toFlv(array $options)`        | Convert to FLV/Flash video.                                              |
-| `toMkv(array $options)`        | Convert to MKV/Matroska video (H.264 + AAC).                             |
-| `toWav(int $sampleRate)`       | Convert to WAV audio (default 44100Hz).                                  |
-| `toAac(int $bitrate)`          | Convert to AAC audio (default 192k bitrate).                             |
-| `toOgg(int $quality)`          | Convert to OGG Vorbis audio (quality 0-10, default 5).                   |
-| `toM4a(int $bitrate)`          | Convert to M4A audio - AAC in MP4 container (default 192k bitrate).      |
+| Method                         | Description                                                         |
+| ------------------------------ | ------------------------------------------------------------------- |
+| `outputFormat(string $format)` | Set the output format (e.g., `mp4`, `hls`).                         |
+| `hls(array $options)`          | Configure HLS output options.                                       |
+| `dash(array $options)`         | Configure DASH output options.                                      |
+| `gif(array $options)`          | Configure GIF output options.                                       |
+| `toGif(array $options)`        | Convert to GIF (alias for `gif()`).                                 |
+| `toMp3(int $bitrate)`          | Convert to MP3 audio (default 192k bitrate).                        |
+| `toMp4(array $options)`        | Convert to MP4 video (H.264 + AAC).                                 |
+| `toWebm(array $options)`       | Convert to WebM video (VP9 + Opus).                                 |
+| `toAvi(array $options)`        | Convert to AVI video (MPEG4 + MP3).                                 |
+| `toMov(array $options)`        | Convert to MOV/QuickTime video (H.264 + AAC).                       |
+| `toFlv(array $options)`        | Convert to FLV/Flash video.                                         |
+| `toMkv(array $options)`        | Convert to MKV/Matroska video (H.264 + AAC).                        |
+| `toWav(int $sampleRate)`       | Convert to WAV audio (default 44100Hz).                             |
+| `toAac(int $bitrate)`          | Convert to AAC audio (default 192k bitrate).                        |
+| `toOgg(int $quality)`          | Convert to OGG Vorbis audio (quality 0-10, default 5).              |
+| `toM4a(int $bitrate)`          | Convert to M4A audio - AAC in MP4 container (default 192k bitrate). |
 
 ## Filters & Effects (`HasFilters`)
 
@@ -101,8 +102,8 @@ This document provides a comprehensive reference for all available methods in th
 
 ## Time Options (`HasTimeOptions`)
 
-| Method                     | Description                           |
-| -------------------------- | ------------------------------------- |
+| Method                       | Description                           |
+| ---------------------------- | ------------------------------------- |
 | `duration(string $duration)` | Set the output duration.              |
 | `seek(string $time)`         | Seek to a specific time in the input. |
 | `startFrom(string $time)`    | Alias for `seek`.                     |
@@ -112,7 +113,7 @@ This document provides a comprehensive reference for all available methods in th
 
 | Method                                            | Description                                                                                         |
 | ------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `clip(string $start, string $end)`                | Extract a single clip between start and end times.                                                   |
+| `clip(string $start, string $end)`                | Extract a single clip between start and end times.                                                  |
 | `clips(array $clips)`                             | Define multiple clips to extract with format: `[['start' => '00:00:10', 'end' => '00:00:20'], ...]` |
 | `batchClips(array $clips, string $outputPattern)` | Extract multiple clips with custom output pattern using `{n}` placeholder.                          |
 
@@ -124,7 +125,7 @@ This document provides a comprehensive reference for all available methods in th
 | `withOutro(string $outroPath)`                                                               | Add an outro video to be appended.                                                                  |
 | `withWatermark(string $watermarkPath, string $position)`                                     | Add a watermark image. Positions: `top-left`, `top-right`, `bottom-left`, `bottom-right`, `center`. |
 | `overlay(array $options)`                                                                    | Overlay video or image (Picture-in-Picture). Options: `x`, `y`, `width`, `height`.                  |
-| `concat(array $inputs)`                                                                      | Concatenate multiple videos. Accepts array of input file paths.                                      |
+| `concat(array $inputs)`                                                                      | Concatenate multiple videos. Accepts array of input file paths.                                     |
 | `addIntroOutro(string $videoPath, string $outputPath, ?string $intro, ?string $outro)`       | Manually add intro/outro to a specific video.                                                       |
 | `addWatermark(string $videoPath, string $outputPath, ?string $watermark, ?string $position)` | Manually add watermark to a specific video.                                                         |
 

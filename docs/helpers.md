@@ -127,8 +127,9 @@ FFmpeg::fromImages('images/%03d.png', ['framerate' => 24])
 ```
 
 Image patterns:
-- `images/%03d.png` - images/001.png, images/002.png, etc.
-- `frame_%04d.jpg` - frame_0001.jpg, frame_0002.jpg, etc.
+
+-   `images/%03d.png` - images/001.png, images/002.png, etc.
+-   `frame_%04d.jpg` - frame_0001.jpg, frame_0002.jpg, etc.
 
 ## Presets
 
@@ -167,6 +168,46 @@ FFmpeg::fromPath('video.mp4')
     ->dash(['segment_duration' => 10])
     ->save('manifest.mpd');
 ```
+
+## Debugging
+
+### Get Command Without Executing
+
+Use `getCommand()` or `dryRun()` to see the generated FFmpeg command without executing it:
+
+```php
+$command = FFmpeg::fromPath('video.mp4')
+    ->videoCodec('libx264')
+    ->resolution(1920, 1080)
+    ->audioBitrate('192k')
+    ->getCommand();
+
+echo $command;
+// Output: ffmpeg -i "video.mp4" -c:v libx264 -s 1920x1080 -b:a 192k -y "output.mp4"
+```
+
+### Dump and Die (dd)
+
+Use `ddCommand()` to dump the command and stop execution (useful during development):
+
+```php
+FFmpeg::fromPath('video.mp4')
+    ->videoCodec('libx264')
+    ->resolution(1920, 1080)
+    ->clips([
+        ['start' => '00:00:10', 'end' => '00:00:20'],
+        ['start' => '00:01:00', 'end' => '00:01:30'],
+    ])
+    ->withWatermark('logo.png', 'bottom-right')
+    ->ddCommand(); // Dies and dumps the command with Laravel dd()
+```
+
+**Use cases:**
+
+-   Verify complex filter chains are correct
+-   Debug command generation issues
+-   Share exact commands with team members
+-   Test command structure before execution
 
 ---
 
