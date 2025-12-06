@@ -108,7 +108,41 @@ class FFmpegBuilder
     /**
      * File extensions to include when processing directories
      */
-    protected array $allowedExtensions = ['mp4', 'avi', 'mkv', 'mov', 'flv', 'wmv', 'webm', 'm4v'];
+    protected array $allowedExtensions = [
+        // Video formats
+        'mp4',
+        'avi',
+        'mkv',
+        'mov',
+        'flv',
+        'wmv',
+        'webm',
+        'm4v',
+        'mpg',
+        'mpeg',
+        '3gp',
+        'ogv',
+        // Audio formats
+        'mp3',
+        'wav',
+        'aac',
+        'flac',
+        'ogg',
+        'wma',
+        'm4a',
+        'opus',
+        'aiff',
+        'alac',
+        // Image formats (for audio-to-video conversion)
+        'jpg',
+        'jpeg',
+        'png',
+        'gif',
+        'bmp',
+        'webp',
+        'tiff',
+        'svg',
+    ];
 
     /**
      * Callback for processing each file in directory
@@ -283,7 +317,14 @@ class FFmpegBuilder
     public function save(string $path): bool|array
     {
         // Check if this is a directory processing operation
-        if ($this->directoryMode && count($this->inputs) > 1) {
+        if ($this->directoryMode) {
+            if (count($this->inputs) === 0) {
+                throw new \RuntimeException(
+                    'No media files found in directory. Ensure the directory contains files with supported extensions. ' .
+                    'Supported: ' . implode(', ', $this->allowedExtensions) . '. ' .
+                    'Use allowExtensions() to customize.'
+                );
+            }
             return $this->processDirectory($path);
         }
 
@@ -304,8 +345,8 @@ class FFmpegBuilder
         // Normal single video save
         $this->outputPath = $path;
 
-        // Apply intro/outro/watermark if specified
-        if ($this->introPath || $this->outroPath || $this->watermarkPath) {
+        // Apply intro/outro/watermark/text if specified
+        if ($this->introPath || $this->outroPath || $this->watermarkPath || $this->textOverlay) {
             $tempOutput = sys_get_temp_dir() . '/' . uniqid('ffmpeg_') . '_temp.mp4';
             $this->outputPath = $tempOutput;
 
@@ -313,7 +354,7 @@ class FFmpegBuilder
             $result = $this->execute();
 
             if ($result) {
-                // Apply composition (intro/outro/watermark)
+                // Apply composition (intro/outro/watermark/text)
                 $this->applyComposition($tempOutput, $path);
 
                 if (file_exists($tempOutput)) {

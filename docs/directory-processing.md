@@ -37,6 +37,8 @@ FFmpeg::allowExtensions(['mp4', 'mov'])
 
 Default extensions: `mp4`, `avi`, `mkv`, `mov`, `flv`, `wmv`, `webm`, `m4v`
 
+You can also process **audio files** (`mp3`, `wav`, `aac`, `flac`, `ogg`, etc.) and **image files** (`jpg`, `png`, `gif`, etc.) for audio-to-video conversion.
+
 ## Output Patterns
 
 ### Save to Directory
@@ -196,6 +198,106 @@ foreach ($results as $result) {
         echo "  Error: {$result['error']}\n";
     }
 }
+```
+
+## Audio to Video Conversion
+
+Convert a directory of audio files (MP3, WAV, etc.) to videos with images/thumbnails.
+
+### Basic Audio to Video
+
+Convert all MP3 files to videos with a static image:
+
+```php
+FFmpeg::fromDirectory('/path/to/audio')
+    ->allowExtensions(['mp3'])
+    ->eachFile(function ($builder, $audioFile) {
+        $name = pathinfo($audioFile, PATHINFO_FILENAME);
+
+        // Clear default input and rebuild
+        $builder->inputs = [];
+        $builder->fromPath('/path/to/thumbnail.jpg')
+            ->addInput($audioFile)
+            ->resolution(1920, 1080)
+            ->universalCompatibility()
+            ->withText($name);
+    })
+    ->save('/path/to/output/{name}.mp4');
+```
+
+### Audio to Video with Image Overlays
+
+Add multiple images/overlays to audio files:
+
+```php
+FFmpeg::fromDirectory('/path/to/podcasts')
+    ->allowExtensions(['mp3', 'wav'])
+    ->eachFile(function ($builder, $audioFile) {
+        $name = basename($audioFile, '.mp3');
+
+        $builder->inputs = [];
+        $builder->fromPath('/path/to/background.jpg')
+            ->addInput('/path/to/wave-animation.png')
+            ->addInput($audioFile)
+            ->overlay(['x' => '(W-w)/2', 'y' => 'H-h-50'])
+            ->resolution(1920, 1080)
+            ->universalCompatibility()
+            ->withText($name, [
+                'position' => 'bottom-center',
+                'font_size' => 32,
+            ]);
+    })
+    ->save('/path/to/output/{name}.mp4');
+```
+
+### Audio to Video with Intro/Outro
+
+Add intro and outro videos to audio files:
+
+```php
+FFmpeg::fromDirectory('/path/to/sermons')
+    ->allowExtensions(['mp3'])
+    ->eachFile(function ($builder, $audioFile) {
+        $name = pathinfo($audioFile, PATHINFO_FILENAME);
+
+        $builder->inputs = [];
+        $builder->fromPath('/path/to/sermon-thumbnail.jpg')
+            ->addInput('/path/to/audio-wave.png')
+            ->withIntro('/path/to/church-intro.mp4')
+            ->withOutro('/path/to/church-outro.mp4')
+            ->addInput($audioFile)
+            ->overlay(['x' => '(W-w)/2', 'y' => 'H-h-50'])
+            ->resolution(1920, 1080)
+            ->universalCompatibility()
+            ->withText($name);
+    })
+    ->save('/path/to/output/{name}.mp4');
+```
+
+### Per-File Custom Thumbnails
+
+Use different thumbnails for each audio file:
+
+```php
+FFmpeg::fromDirectory('/path/to/audio')
+    ->allowExtensions(['mp3'])
+    ->eachFile(function ($builder, $audioFile) {
+        $name = pathinfo($audioFile, PATHINFO_FILENAME);
+
+        // Look for matching thumbnail (same name as audio)
+        $thumbnailPath = dirname($audioFile) . '/thumbnails/' . $name . '.jpg';
+        if (!file_exists($thumbnailPath)) {
+            $thumbnailPath = '/path/to/default-thumbnail.jpg';
+        }
+
+        $builder->inputs = [];
+        $builder->fromPath($thumbnailPath)
+            ->addInput($audioFile)
+            ->resolution(1920, 1080)
+            ->universalCompatibility()
+            ->withText($name, ['position' => 'bottom-center']);
+    })
+    ->save('/path/to/output/{name}.mp4');
 ```
 
 ## Tips
