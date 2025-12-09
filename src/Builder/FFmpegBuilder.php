@@ -551,7 +551,7 @@ class FFmpegBuilder
                 $pathInfo = pathinfo($inputFile);
                 $outputFile = str_replace(
                     ['{n}', '{name}', '{ext}', '{index}'],
-                    [$index + 1, $pathInfo['filename'], $pathInfo['extension'], $index],
+                    [(string) ($index + 1), $pathInfo['filename'], $pathInfo['extension'], (string) $index],
                     $outputPath
                 );
             }
