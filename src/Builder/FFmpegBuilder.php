@@ -8,6 +8,7 @@ use Ritechoice23\FluentFFmpeg\Actions\BuildFFmpegCommand;
 use Ritechoice23\FluentFFmpeg\Actions\ExecuteFFmpegCommand;
 use Ritechoice23\FluentFFmpeg\Concerns\HasAdvancedOptions;
 use Ritechoice23\FluentFFmpeg\Concerns\HasAudioOptions;
+use Ritechoice23\FluentFFmpeg\Concerns\HasAudioPeaks;
 use Ritechoice23\FluentFFmpeg\Concerns\HasClipping;
 use Ritechoice23\FluentFFmpeg\Concerns\HasCompatibilityOptions;
 use Ritechoice23\FluentFFmpeg\Concerns\HasFilters;
@@ -26,6 +27,7 @@ class FFmpegBuilder
 {
     use HasAdvancedOptions;
     use HasAudioOptions;
+    use HasAudioPeaks;
     use HasClipping;
     use HasCompatibilityOptions;
     use HasFilters;
@@ -203,6 +205,20 @@ class FFmpegBuilder
      */
     public function fromDisk(string $disk, string $path): self
     {
+        // Check if S3 streaming is enabled and supported
+        if (config('fluent-ffmpeg.s3_streaming', true)) {
+            try {
+                // Try to use pre-signed URL for streaming
+                $url = Storage::disk($disk)->temporaryUrl($path, now()->addHour());
+                $this->inputs[] = $url;
+
+                return $this;
+            } catch (\Exception) {
+                // Fall through to local path method
+            }
+        }
+
+        // Use local path (or download to temp for non-S3 disks)
         $fullPath = Storage::disk($disk)->path($path);
         $this->inputs[] = $fullPath;
 
@@ -311,6 +327,8 @@ class FFmpegBuilder
 
     /**
      * Execute and save to local path
+     *
+     * @return bool|array Returns bool for single file operations, array for batch operations (clips/directory)
      */
     public function save(string $path): bool|array
     {
@@ -474,14 +492,17 @@ class FFmpegBuilder
             };
         }
 
-        return app(ExecuteFFmpegCommand::class)->execute(
+        $result = app(ExecuteFFmpegCommand::class)->execute(
             $command,
             $progressCallback,
             $this->errorCallback,
             $this->outputDisk,
             $this->outputPath,
-            $this->inputs
+            $this->inputs,
+            $this->peaksConfig
         );
+
+        return $result['success'] ?? true;
     }
 
     /**

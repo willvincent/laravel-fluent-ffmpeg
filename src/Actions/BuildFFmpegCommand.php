@@ -25,6 +25,10 @@ class BuildFFmpegCommand
             $parts[] = escapeshellarg($input);
         }
 
+        // Add progress output
+        $parts[] = '-progress';
+        $parts[] = 'pipe:1';
+
         // Add filters
         if (count($builder->getFilters()) > 0) {
             $filterString = implode(',', $builder->getFilters());
@@ -44,25 +48,57 @@ class BuildFFmpegCommand
             $parts[] = escapeshellarg("{$key}={$value}");
         }
 
-        // Add output options
+        // Add output options for main output
         foreach ($builder->getOutputOptions() as $key => $value) {
             $parts[] = $this->formatOption($key, $value);
         }
 
         // Add output path
         if ($outputPath = $builder->getOutputPath()) {
-            // If saving to disk, use temp path first
+            // If saving to disk, output to pipe:4 for streaming to S3
             if ($builder->getOutputDisk()) {
-                $tempPath = sys_get_temp_dir().'/'.uniqid('ffmpeg_').'_'.basename($outputPath);
-                $parts[] = '-y'; // Overwrite without asking
-                $parts[] = escapeshellarg($tempPath);
+                $parts[] = '-f';
+                $parts[] = $this->getOutputFormat($outputPath, $builder);
+                $parts[] = 'pipe:4';
             } else {
                 $parts[] = '-y'; // Overwrite without asking
                 $parts[] = escapeshellarg($outputPath);
             }
         }
 
+        // Add PCM output for peaks if requested
+        if ($peaksConfig = $builder->getPeaksConfig()) {
+            $parts[] = '-map';
+            $parts[] = '0:a';
+            $parts[] = '-f';
+            $parts[] = 's16le';
+            $parts[] = '-acodec';
+            $parts[] = 'pcm_s16le';
+            $parts[] = 'pipe:3';
+        }
+
         return implode(' ', $parts);
+    }
+
+    /**
+     * Get output format for streaming
+     */
+    protected function getOutputFormat(string $outputPath, FFmpegBuilder $builder): string
+    {
+        $extension = pathinfo($outputPath, PATHINFO_EXTENSION);
+
+        // Map extensions to container formats
+        return match (strtolower($extension)) {
+            'mp4', 'm4a', 'm4v' => 'mp4',
+            'mp3' => 'mp3',
+            'webm' => 'webm',
+            'ogg' => 'ogg',
+            'wav' => 'wav',
+            'flac' => 'flac',
+            'mkv' => 'matroska',
+            'avi' => 'avi',
+            default => 'mp4',
+        };
     }
 
     /**
